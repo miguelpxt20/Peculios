@@ -1,0 +1,45 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Model\Entity;
+
+use Cake\ORM\Entity;
+
+/**
+ * ContratosPeculio Entity
+ *
+ * @property int $id
+ * @property int $associado_id
+ * @property int $plano_id
+ * @property string $numero_contrato
+ * @property \Cake\I18n\Date $data_inicio
+ * @property \Cake\I18n\Date|null $data_fim
+ * @property string $status
+ * @property \Cake\I18n\DateTime $created
+ * @property \Cake\I18n\DateTime $modified
+ *
+ * @property \App\Model\Entity\Associado $associado
+ */
+class ContratosPeculio extends Entity
+{
+    /**
+     * Fields that can be mass assigned using newEntity() or patchEntity().
+     *
+     * Note that when '*' is set to true, this allows all unspecified fields to
+     * be mass assigned. For security purposes, it is advised to set '*' to false
+     * (or remove it), and explicitly make individual fields accessible as needed.
+     *
+     * @var array<string, bool>
+     */
+    protected array $_accessible = [
+        'associado_id' => true,
+        'plano_id' => true,
+        'numero_contrato' => true,
+        'data_inicio' => true,
+        'data_fim' => true,
+        'status' => true,
+        'created' => true,
+        'modified' => true,
+        'associado' => true,
+    ];
+}

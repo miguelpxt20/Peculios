@@ -1,30 +1,20 @@
 <?php
 declare(strict_types=1);
 
-use Migrations\BaseMigration;
+use Migrations\BaseSeed;
 
-class CreatePlanosPeculio extends BaseMigration
+class CreatePlanosPeculio extends BaseSeed
 {
-    /**
-     * Change Method.
-     *
-     * More information on this method is available here:
-     * https://book.cakephp.org/migrations/5/guides/writing-migrations/migration-methods.html#the-change-method
-     *
-     * @return void
-     */
     public function change(): void
     {
         $table = $this->table('planos_peculio');
-        $table->addColumn('id', 'integer', [
-            'default' => null,
-            'limit' => 11,
-            'null' => false,
-        ]);
+        
         $table->addColumn('codigo', 'string', [
             'default' => null,
-            'limit' => 255,
+            'limit' => 20,
             'null' => false,
+            
+            
         ]);
         $table->addColumn('nome', 'string', [
             'default' => null,
@@ -33,24 +23,24 @@ class CreatePlanosPeculio extends BaseMigration
         ]);
         $table->addColumn('descricao', 'text', [
             'default' => null,
-            'null' => false,
+            'null' => true,
         ]);
         $table->addColumn('tipo', 'string', [
             'default' => null,
-            'limit' => 255,
+            'limit' => 20,
             'null' => false,
         ]);
         $table->addColumn('valor_cobertura', 'decimal', [
             'default' => null,
             'null' => false,
-            'precision' => 10,
-            'scale' => 6,
+            'precision' => 15,
+            'scale' => 2,
         ]);
         $table->addColumn('percentual_contribuicao', 'decimal', [
             'default' => null,
             'null' => false,
-            'precision' => 10,
-            'scale' => 6,
+            'precision' => 5,
+            'scale' => 4,
         ]);
         $table->addColumn('carencia_meses', 'integer', [
             'default' => null,
@@ -58,7 +48,7 @@ class CreatePlanosPeculio extends BaseMigration
             'null' => false,
         ]);
         $table->addColumn('ativo', 'boolean', [
-            'default' => null,
+            'default' => true,
             'null' => false,
         ]);
         $table->addColumn('created', 'datetime', [
@@ -69,6 +59,7 @@ class CreatePlanosPeculio extends BaseMigration
             'default' => null,
             'null' => false,
         ]);
+        $table->addIndex(['codigo'], ['unique' => true]);
         $table->create();
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0827cf7d46f2977fccc5cf6dbe9f3b0c",
+    "content-hash": "c7bd7887e218152919ff245b39f6c591",
     "packages": [
         {
             "name": "cakephp/cakephp",
@@ -188,16 +188,16 @@
         },
         {
             "name": "cakephp/migrations",
-            "version": "5.2.1",
+            "version": "5.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cakephp/migrations.git",
-                "reference": "a5f2d906286003755b0024f38a449cf62effe86f"
+                "reference": "369d849a540a6815f402447119351ad6fe7894ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cakephp/migrations/zipball/a5f2d906286003755b0024f38a449cf62effe86f",
-                "reference": "a5f2d906286003755b0024f38a449cf62effe86f",
+                "url": "https://api.github.com/repos/cakephp/migrations/zipball/369d849a540a6815f402447119351ad6fe7894ac",
+                "reference": "369d849a540a6815f402447119351ad6fe7894ac",
                 "shasum": ""
             },
             "require": {
@@ -245,7 +245,7 @@
                 "issues": "https://github.com/cakephp/migrations/issues",
                 "source": "https://github.com/cakephp/migrations"
             },
-            "time": "2026-05-28T15:32:42+00:00"
+            "time": "2026-05-13T14:46:37+00:00"
         },
         {
             "name": "cakephp/plugin-installer",

@@ -1,26 +1,13 @@
 <?php
 declare(strict_types=1);
 
-use Migrations\BaseMigration;
+use Migrations\BaseSeed;
 
-class CreateSinistros extends BaseMigration
+class CreateSinistros extends BaseSeed
 {
-    /**
-     * Change Method.
-     *
-     * More information on this method is available here:
-     * https://book.cakephp.org/migrations/5/guides/writing-migrations/migration-methods.html#the-change-method
-     *
-     * @return void
-     */
     public function change(): void
     {
         $table = $this->table('sinistros');
-        $table->addColumn('id', 'integer', [
-            'default' => null,
-            'limit' => 11,
-            'null' => false,
-        ]);
         $table->addColumn('contrato_id', 'integer', [
             'default' => null,
             'limit' => 11,
@@ -28,7 +15,7 @@ class CreateSinistros extends BaseMigration
         ]);
         $table->addColumn('tipo_evento', 'string', [
             'default' => null,
-            'limit' => 255,
+            'limit' => 30,
             'null' => false,
         ]);
         $table->addColumn('data_evento', 'date', [
@@ -40,19 +27,19 @@ class CreateSinistros extends BaseMigration
             'null' => false,
         ]);
         $table->addColumn('status', 'string', [
-            'default' => null,
-            'limit' => 255,
+            'default' => 'aberto',
+            'limit' => 20,
             'null' => false,
         ]);
         $table->addColumn('valor_calculado', 'decimal', [
             'default' => null,
-            'null' => false,
-            'precision' => 10,
-            'scale' => 6,
+            'null' => true,
+            'precision' => 15,
+            'scale' => 2,
         ]);
         $table->addColumn('observacao', 'text', [
             'default' => null,
-            'null' => false,
+            'null' => true,
         ]);
         $table->addColumn('created', 'datetime', [
             'default' => null,
@@ -62,6 +49,7 @@ class CreateSinistros extends BaseMigration
             'default' => null,
             'null' => false,
         ]);
+        $table->addIndex(['contrato_id']);
         $table->create();
     }
 }

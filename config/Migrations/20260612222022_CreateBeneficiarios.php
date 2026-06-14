@@ -1,26 +1,13 @@
 <?php
 declare(strict_types=1);
 
-use Migrations\BaseMigration;
+use Migrations\BaseSeed;
 
-class CreateBeneficiarios extends BaseMigration
+class CreateBeneficiarios extends BaseSeed
 {
-    /**
-     * Change Method.
-     *
-     * More information on this method is available here:
-     * https://book.cakephp.org/migrations/5/guides/writing-migrations/migration-methods.html#the-change-method
-     *
-     * @return void
-     */
     public function change(): void
     {
         $table = $this->table('beneficiarios');
-        $table->addColumn('id', 'integer', [
-            'default' => null,
-            'limit' => 11,
-            'null' => false,
-        ]);
         $table->addColumn('contrato_id', 'integer', [
             'default' => null,
             'limit' => 11,
@@ -33,19 +20,19 @@ class CreateBeneficiarios extends BaseMigration
         ]);
         $table->addColumn('cpf', 'string', [
             'default' => null,
-            'limit' => 255,
+            'limit' => 14,
             'null' => false,
         ]);
         $table->addColumn('parentesco', 'string', [
             'default' => null,
-            'limit' => 255,
+            'limit' => 50,
             'null' => false,
         ]);
         $table->addColumn('percentual', 'decimal', [
             'default' => null,
             'null' => false,
-            'precision' => 10,
-            'scale' => 6,
+            'precision' => 5,
+            'scale' => 2,
         ]);
         $table->addColumn('created', 'datetime', [
             'default' => null,
@@ -55,6 +42,7 @@ class CreateBeneficiarios extends BaseMigration
             'default' => null,
             'null' => false,
         ]);
+        $table->addIndex(['contrato_id']);
         $table->create();
     }
 }

@@ -1,26 +1,13 @@
 <?php
 declare(strict_types=1);
 
-use Migrations\BaseMigration;
+use Migrations\BaseSeed;
 
-class CreateContratosPeculio extends BaseMigration
+class CreateContratosPeculio extends BaseSeed
 {
-    /**
-     * Change Method.
-     *
-     * More information on this method is available here:
-     * https://book.cakephp.org/migrations/5/guides/writing-migrations/migration-methods.html#the-change-method
-     *
-     * @return void
-     */
     public function change(): void
     {
         $table = $this->table('contratos_peculio');
-        $table->addColumn('id', 'integer', [
-            'default' => null,
-            'limit' => 11,
-            'null' => false,
-        ]);
         $table->addColumn('associado_id', 'integer', [
             'default' => null,
             'limit' => 11,
@@ -33,7 +20,7 @@ class CreateContratosPeculio extends BaseMigration
         ]);
         $table->addColumn('numero_contrato', 'string', [
             'default' => null,
-            'limit' => 255,
+            'limit' => 30,
             'null' => false,
         ]);
         $table->addColumn('data_inicio', 'date', [
@@ -42,11 +29,11 @@ class CreateContratosPeculio extends BaseMigration
         ]);
         $table->addColumn('data_fim', 'date', [
             'default' => null,
-            'null' => false,
+            'null' => true,
         ]);
         $table->addColumn('status', 'string', [
-            'default' => null,
-            'limit' => 255,
+            'default' => 'vigente',
+            'limit' => 20,
             'null' => false,
         ]);
         $table->addColumn('created', 'datetime', [
@@ -57,6 +44,9 @@ class CreateContratosPeculio extends BaseMigration
             'default' => null,
             'null' => false,
         ]);
+        $table->addIndex(['numero_contrato'], ['unique' => true]);
+        $table->addIndex(['associado_id']);
+        $table->addIndex(['plano_id']);
         $table->create();
     }
 }
