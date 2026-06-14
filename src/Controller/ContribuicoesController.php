@@ -3,96 +3,111 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-/**
- * Contribuicoes Controller
- *
- * @property \App\Model\Table\ContribuicoesTable $Contribuicoes
- */
 class ContribuicoesController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null|void Renders view
-     */
     public function index()
     {
-        $query = $this->Contribuicoes->find();
+        $query = $this->Contribuicoes->find()
+            ->contain(['ContratosPeculio']);
         $contribuicoes = $this->paginate($query);
 
         $this->set(compact('contribuicoes'));
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id Contribuico id.
-     * @return \Cake\Http\Response|null|void Renders view
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function view($id = null)
     {
-        $contribuico = $this->Contribuicoes->get($id, contain: []);
-        $this->set(compact('contribuico'));
+        $contribuicao = $this->Contribuicoes->get($id, contain: ['ContratosPeculio']);
+        $this->set(compact('contribuicao'));
     }
 
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
-     */
-    public function add()
-    {
-        $contribuico = $this->Contribuicoes->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $contribuico = $this->Contribuicoes->patchEntity($contribuico, $this->request->getData());
-            if ($this->Contribuicoes->save($contribuico)) {
-                $this->Flash->success(__('The contribuico has been saved.'));
+    public function lancarLote()
+{
+    if ($this->request->is('post')) {
+        $competencia = $this->request->getData('competencia');
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The contribuico could not be saved. Please, try again.'));
+        if (empty($competencia)) {
+            $this->Flash->error('Informe a competência (mês/ano).');
+            $this->set('competencia', null);
+            return;
         }
-        $this->set(compact('contribuico'));
+
+        // Formatar competência para YYYY-MM-01
+        $partes = explode('-', $competencia);
+        $competenciaFormatada = $partes[0] . '-' . $partes[1] . '-01';
+
+        // Buscar todos os contratos vigentes com seus planos
+        $contratos = $this->Contribuicoes->ContratosPeculio->find()
+            ->contain(['PlanosPeculio'])
+            ->where(['ContratosPeculio.status' => 'vigente'])
+            ->all();
+
+        $inseridos = 0;
+        $ignorados = 0;
+        $novasContribuicoes = [];
+
+        foreach ($contratos as $contrato) {
+            // Verificar se já existe contribuição para essa competência (idempotência)
+            $existe = $this->Contribuicoes->find()
+                ->where([
+                    'contrato_id' => $contrato->id,
+                    'competencia' => $competenciaFormatada,
+                ])->first();
+
+            if ($existe) {
+                $ignorados++;
+                continue;
+            }
+
+            // Calcular valor: percentual_contribuicao * valor_cobertura
+            $valor = $contrato->planos_peculio->percentual_contribuicao
+                   * $contrato->planos_peculio->valor_cobertura;
+
+            $novasContribuicoes[] = [
+                'contrato_id'    => $contrato->id,
+                'competencia'    => $competenciaFormatada,
+                'valor'          => round($valor, 2),
+                'status'         => 'pendente',
+                'data_pagamento' => null,
+                'created'        => date('Y-m-d H:i:s'),
+                'modified'       => date('Y-m-d H:i:s'),
+            ];
+            $inseridos++;
+        }
+
+        // Inserir em batch usando saveMany
+        if (!empty($novasContribuicoes)) {
+            $entities = $this->Contribuicoes->newEntities($novasContribuicoes);
+            $this->Contribuicoes->saveMany($entities);
+        }
+
+        $this->Flash->success("Lançamento concluído! {$inseridos} contribuições geradas, {$ignorados} já existiam.");
+        return $this->redirect(['action' => 'lancarLote']);
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Contribuico id.
-     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
+    $this->set('competencia', null);
+}
     public function edit($id = null)
     {
-        $contribuico = $this->Contribuicoes->get($id, contain: []);
+        $contribuicao = $this->Contribuicoes->get($id);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $contribuico = $this->Contribuicoes->patchEntity($contribuico, $this->request->getData());
-            if ($this->Contribuicoes->save($contribuico)) {
-                $this->Flash->success(__('The contribuico has been saved.'));
-
+            $contribuicao = $this->Contribuicoes->patchEntity($contribuicao, $this->request->getData());
+            if ($this->Contribuicoes->save($contribuicao)) {
+                $this->Flash->success('Contribuição atualizada com sucesso!');
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The contribuico could not be saved. Please, try again.'));
+            $this->Flash->error('Erro ao atualizar a contribuição.');
         }
-        $this->set(compact('contribuico'));
+        $this->set(compact('contribuicao'));
     }
 
-    /**
-     * Delete method
-     *
-     * @param string|null $id Contribuico id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $contribuico = $this->Contribuicoes->get($id);
-        if ($this->Contribuicoes->delete($contribuico)) {
-            $this->Flash->success(__('The contribuico has been deleted.'));
+        $contribuicao = $this->Contribuicoes->get($id);
+        if ($this->Contribuicoes->delete($contribuicao)) {
+            $this->Flash->success('Contribuição excluída com sucesso!');
         } else {
-            $this->Flash->error(__('The contribuico could not be deleted. Please, try again.'));
+            $this->Flash->error('Erro ao excluir a contribuição.');
         }
 
         return $this->redirect(['action' => 'index']);

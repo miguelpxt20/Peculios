@@ -3,38 +3,12 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
-use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
-/**
- * Contribuicoes Model
- *
- * @method \App\Model\Entity\Contribuico newEmptyEntity()
- * @method \App\Model\Entity\Contribuico newEntity(array $data, array $options = [])
- * @method array<\App\Model\Entity\Contribuico> newEntities(array $data, array $options = [])
- * @method \App\Model\Entity\Contribuico get(mixed $primaryKey, array|string $finder = 'all', \Psr\SimpleCache\CacheInterface|string|null $cache = null, \Closure|string|null $cacheKey = null, mixed ...$args)
- * @method \App\Model\Entity\Contribuico findOrCreate($search, ?callable $callback = null, array $options = [])
- * @method \App\Model\Entity\Contribuico patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method array<\App\Model\Entity\Contribuico> patchEntities(iterable $entities, array $data, array $options = [])
- * @method \App\Model\Entity\Contribuico|false save(\Cake\Datasource\EntityInterface $entity, array $options = [])
- * @method \App\Model\Entity\Contribuico saveOrFail(\Cake\Datasource\EntityInterface $entity, array $options = [])
- * @method iterable<\App\Model\Entity\Contribuico>|\Cake\Datasource\ResultSetInterface<\App\Model\Entity\Contribuico>|false saveMany(iterable $entities, array $options = [])
- * @method iterable<\App\Model\Entity\Contribuico>|\Cake\Datasource\ResultSetInterface<\App\Model\Entity\Contribuico> saveManyOrFail(iterable $entities, array $options = [])
- * @method iterable<\App\Model\Entity\Contribuico>|\Cake\Datasource\ResultSetInterface<\App\Model\Entity\Contribuico>|false deleteMany(iterable $entities, array $options = [])
- * @method iterable<\App\Model\Entity\Contribuico>|\Cake\Datasource\ResultSetInterface<\App\Model\Entity\Contribuico> deleteManyOrFail(iterable $entities, array $options = [])
- *
- * @mixin \Cake\ORM\Behavior\TimestampBehavior
- */
 class ContribuicoesTable extends Table
 {
-    /**
-     * Initialize method
-     *
-     * @param array<string, mixed> $config The configuration for the Table.
-     * @return void
-     */
     public function initialize(array $config): void
     {
         parent::initialize($config);
@@ -44,35 +18,38 @@ class ContribuicoesTable extends Table
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
+
+        $this->belongsTo('ContratosPeculio', [
+            'foreignKey' => 'contrato_id',
+            'joinType' => 'INNER',
+        ]);
     }
 
-    /**
-     * Default validation rules.
-     *
-     * @param \Cake\Validation\Validator $validator Validator instance.
-     * @return \Cake\Validation\Validator
-     */
     public function validationDefault(Validator $validator): Validator
     {
         $validator
             ->integer('contrato_id')
             ->requirePresence('contrato_id', 'create')
-            ->notEmptyString('contrato_id');
+            ->notEmptyString('contrato_id', 'O contrato é obrigatório.');
 
         $validator
             ->date('competencia')
             ->requirePresence('competencia', 'create')
-            ->notEmptyDate('competencia');
+            ->notEmptyDate('competencia', 'A competência é obrigatória.');
 
         $validator
             ->decimal('valor')
             ->requirePresence('valor', 'create')
-            ->notEmptyString('valor');
+            ->notEmptyString('valor', 'O valor é obrigatório.');
 
         $validator
             ->scalar('status')
             ->maxLength('status', 20)
-            ->notEmptyString('status');
+            ->notEmptyString('status', 'O status é obrigatório.')
+            ->add('status', 'valido', [
+                'rule' => ['inList', ['pendente', 'paga', 'atrasada', 'cancelada']],
+                'message' => 'Status inválido.',
+            ]);
 
         $validator
             ->date('data_pagamento')
@@ -81,16 +58,15 @@ class ContribuicoesTable extends Table
         return $validator;
     }
 
-    /**
-     * Returns a rules checker object that will be used for validating
-     * application integrity.
-     *
-     * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
-     * @return \Cake\ORM\RulesChecker
-     */
     public function buildRules(RulesChecker $rules): RulesChecker
     {
-        $rules->add($rules->isUnique(['contrato_id', 'competencia']), ['errorField' => 'contrato_id', 'message' => __('This combination of contrato_id and competencia already exists')]);
+        $rules->add($rules->isUnique(['contrato_id', 'competencia']), [
+            'errorField' => 'contrato_id',
+            'message' => 'Já existe uma contribuição para este contrato nesta competência.',
+        ]);
+        $rules->add($rules->existsIn(['contrato_id'], 'ContratosPeculio'), [
+            'errorField' => 'contrato_id',
+        ]);
 
         return $rules;
     }

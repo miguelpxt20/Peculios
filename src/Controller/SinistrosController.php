@@ -3,98 +3,119 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-/**
- * Sinistros Controller
- *
- * @property \App\Model\Table\SinistrosTable $Sinistros
- */
+use Cake\I18n\Date;
+
 class SinistrosController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null|void Renders view
-     */
     public function index()
     {
-        $query = $this->Sinistros->find();
+        $query = $this->Sinistros->find()
+            ->contain(['ContratosPeculio' => ['Associados']]);
         $sinistros = $this->paginate($query);
-
         $this->set(compact('sinistros'));
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id Sinistro id.
-     * @return \Cake\Http\Response|null|void Renders view
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function view($id = null)
     {
-        $sinistro = $this->Sinistros->get($id, contain: []);
+        $sinistro = $this->Sinistros->get($id, contain: [
+            'ContratosPeculio' => ['Associados', 'PlanosPeculio', 'Beneficiarios'],
+        ]);
         $this->set(compact('sinistro'));
     }
 
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
-     */
-    public function add()
+    public function abrir($contrato_id = null)
     {
+        $contrato = $this->Sinistros->ContratosPeculio->get($contrato_id, contain: [
+            'PlanosPeculio',
+            'Beneficiarios',
+            'Contribuicoes',
+        ]);
+
+        // Verificar se contrato está vigente
+        if ($contrato->status !== 'vigente') {
+            $this->Flash->error('Este contrato não está vigente e não pode ter sinistro aberto.');
+            return $this->redirect(['controller' => 'ContratosPeculio', 'action' => 'index']);
+        }
+
+        // Verificar carência
+        $dataInicio = $contrato->data_inicio;
+        $hoje = new Date('now');
+        $mesesDecorridos = $dataInicio->diffInMonths($hoje);
+
+        if ($mesesDecorridos < $contrato->planos_peculio->carencia_meses) {
+            $this->Flash->error("Carência não cumprida. São necessários {$contrato->planos_peculio->carencia_meses} meses. Decorridos: {$mesesDecorridos} meses.");
+            return $this->redirect(['controller' => 'ContratosPeculio', 'action' => 'index']);
+        }
+
+        // Verificar contribuições atrasadas
+        $atrasadas = array_filter($contrato->contribuicoes, fn($c) => $c->status === 'atrasada');
+        $observacao = '';
+        if (!empty($atrasadas)) {
+            $observacao = 'ATENÇÃO: Existem ' . count($atrasadas) . ' contribuição(ões) atrasada(s).';
+        }
+
         $sinistro = $this->Sinistros->newEmptyEntity();
+
         if ($this->request->is('post')) {
             $sinistro = $this->Sinistros->patchEntity($sinistro, $this->request->getData());
-            if ($this->Sinistros->save($sinistro)) {
-                $this->Flash->success(__('The sinistro has been saved.'));
+            $sinistro->contrato_id = $contrato_id;
+            $sinistro->data_abertura = new Date('now');
+            $sinistro->status = 'aberto';
+            $sinistro->valor_calculado = $contrato->planos_peculio->valor_cobertura;
+            $sinistro->observacao = $observacao;
 
-                return $this->redirect(['action' => 'index']);
+            // Usar transação para garantir atomicidade
+            $connection = $this->Sinistros->getConnection();
+            $connection->begin();
+
+            try {
+                $this->Sinistros->save($sinistro);
+
+                // Atualizar status do contrato para sinistrado
+                $contrato->status = 'sinistrado';
+                $this->Sinistros->ContratosPeculio->save($contrato);
+
+                $connection->commit();
+
+                $valorFormatado = 'R$ ' . number_format((float)$sinistro->valor_calculado, 2, ',', '.');
+                $this->Flash->success("Sinistro aberto com sucesso. Valor calculado: {$valorFormatado}");
+                return $this->redirect(['action' => 'view', $sinistro->id]);
+            } catch (\Exception $e) {
+                $connection->rollback();
+                $this->Flash->error('Erro ao abrir sinistro. Tente novamente.');
             }
-            $this->Flash->error(__('The sinistro could not be saved. Please, try again.'));
         }
-        $this->set(compact('sinistro'));
+
+        $this->set(compact('sinistro', 'contrato', 'observacao'));
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Sinistro id.
-     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function edit($id = null)
+    public function aprovar($id = null)
     {
-        $sinistro = $this->Sinistros->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $sinistro = $this->Sinistros->patchEntity($sinistro, $this->request->getData());
-            if ($this->Sinistros->save($sinistro)) {
-                $this->Flash->success(__('The sinistro has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The sinistro could not be saved. Please, try again.'));
-        }
-        $this->set(compact('sinistro'));
+        $sinistro = $this->Sinistros->get($id, contain: ['ContratosPeculio']);
+        $sinistro->status = 'aprovado';
+        $this->Sinistros->save($sinistro);
+        $this->Flash->success('Sinistro aprovado com sucesso!');
+        return $this->redirect(['action' => 'view', $id]);
     }
 
-    /**
-     * Delete method
-     *
-     * @param string|null $id Sinistro id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
+    public function recusar($id = null)
+    {
+        $sinistro = $this->Sinistros->get($id);
+        $sinistro->status = 'recusado';
+        $this->Sinistros->save($sinistro);
+        $this->Flash->success('Sinistro recusado.');
+        return $this->redirect(['action' => 'view', $id]);
+    }
+
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
         $sinistro = $this->Sinistros->get($id);
         if ($this->Sinistros->delete($sinistro)) {
-            $this->Flash->success(__('The sinistro has been deleted.'));
+            $this->Flash->success('Sinistro excluído com sucesso!');
         } else {
-            $this->Flash->error(__('The sinistro could not be deleted. Please, try again.'));
+            $this->Flash->error('Erro ao excluir o sinistro.');
         }
-
         return $this->redirect(['action' => 'index']);
     }
 }
