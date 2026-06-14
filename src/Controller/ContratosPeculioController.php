@@ -3,99 +3,87 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-/**
- * ContratosPeculio Controller
- *
- * @property \App\Model\Table\ContratosPeculioTable $ContratosPeculio
- */
 class ContratosPeculioController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null|void Renders view
-     */
-   public function index()
-{
-    $query = $this->ContratosPeculio->find()
-        ->contain(['Associados', 'PlanosPeculio']);
-    $contratosPeculio = $this->paginate($query);
+    public function index()
+    {
+        $query = $this->ContratosPeculio->find()
+            ->contain(['Associados', 'PlanosPeculio']);
+        $contratosPeculio = $this->paginate($query);
 
-    $this->set(compact('contratosPeculio'));
-}
+        $this->set(compact('contratosPeculio'));
+    }
 
-    /**
-     * View method
-     *
-     * @param string|null $id Contratos Peculio id.
-     * @return \Cake\Http\Response|null|void Renders view
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function view($id = null)
     {
-        $contratosPeculioEntity = $this->ContratosPeculio->get($id, contain: ['Associados']);
-        $this->set(compact('contratosPeculioEntity'));
+        $contrato = $this->ContratosPeculio->get($id, contain: [
+            'Associados',
+            'PlanosPeculio',
+            'Beneficiarios',
+            'Contribuicoes',
+            'Sinistros',
+        ]);
+        $this->set(compact('contrato'));
     }
 
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
-     */
     public function add()
     {
-        $contratosPeculioEntity = $this->ContratosPeculio->newEmptyEntity();
+        $contrato = $this->ContratosPeculio->newEmptyEntity();
         if ($this->request->is('post')) {
-            $contratosPeculioEntity = $this->ContratosPeculio->patchEntity($contratosPeculioEntity, $this->request->getData());
-            if ($this->ContratosPeculio->save($contratosPeculioEntity)) {
-                $this->Flash->success(__('The contratos peculio has been saved.'));
+            $contrato = $this->ContratosPeculio->patchEntity($contrato, $this->request->getData());
+            
+            // Validar que associado está ativo
+            $associado = $this->ContratosPeculio->Associados->get($contrato->associado_id);
+            if ($associado->situacao !== 'ativo') {
+                $this->Flash->error('Apenas associados ativos podem ter contratos.');
+            } else {
+                // Validar que não existe contrato vigente para o mesmo plano
+                $contratoExistente = $this->ContratosPeculio->find()
+                    ->where([
+                        'associado_id' => $contrato->associado_id,
+                        'plano_id' => $contrato->plano_id,
+                        'status' => 'vigente',
+                    ])->first();
 
-                return $this->redirect(['action' => 'index']);
+                if ($contratoExistente) {
+                    $this->Flash->error('Este associado já possui um contrato vigente para este plano.');
+                } elseif ($this->ContratosPeculio->save($contrato)) {
+                    $this->Flash->success('Contrato criado com sucesso!');
+                    return $this->redirect(['action' => 'index']);
+                } else {
+                    $this->Flash->error('Erro ao salvar o contrato. Verifique os campos.');
+                }
             }
-            $this->Flash->error(__('The contratos peculio could not be saved. Please, try again.'));
         }
-        $associados = $this->ContratosPeculio->Associados->find('list', limit: 200)->all();
-        $this->set(compact('contratosPeculioEntity', 'associados'));
+        $associados = $this->ContratosPeculio->Associados->find('list', keyField: 'id', valueField: 'nome')->all();
+        $planos = $this->ContratosPeculio->PlanosPeculio->find('list', keyField: 'id', valueField: 'nome')->all();
+        $this->set(compact('contrato', 'associados', 'planos'));
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Contratos Peculio id.
-     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function edit($id = null)
     {
-        $contratosPeculioEntity = $this->ContratosPeculio->get($id, contain: []);
+        $contrato = $this->ContratosPeculio->get($id);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $contratosPeculioEntity = $this->ContratosPeculio->patchEntity($contratosPeculioEntity, $this->request->getData());
-            if ($this->ContratosPeculio->save($contratosPeculioEntity)) {
-                $this->Flash->success(__('The contratos peculio has been saved.'));
-
+            $contrato = $this->ContratosPeculio->patchEntity($contrato, $this->request->getData());
+            if ($this->ContratosPeculio->save($contrato)) {
+                $this->Flash->success('Contrato atualizado com sucesso!');
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The contratos peculio could not be saved. Please, try again.'));
+            $this->Flash->error('Erro ao atualizar o contrato.');
         }
-        $associados = $this->ContratosPeculio->Associados->find('list', limit: 200)->all();
-        $this->set(compact('contratosPeculioEntity', 'associados'));
+        $associados = $this->ContratosPeculio->Associados->find('list', keyField: 'id', valueField: 'nome')->all();
+        $planos = $this->ContratosPeculio->PlanosPeculio->find('list', keyField: 'id', valueField: 'nome')->all();
+        $this->set(compact('contrato', 'associados', 'planos'));
     }
 
-    /**
-     * Delete method
-     *
-     * @param string|null $id Contratos Peculio id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $contratosPeculioEntity = $this->ContratosPeculio->get($id);
-        if ($this->ContratosPeculio->delete($contratosPeculioEntity)) {
-            $this->Flash->success(__('The contratos peculio has been deleted.'));
+        $contrato = $this->ContratosPeculio->get($id);
+        if ($this->ContratosPeculio->delete($contrato)) {
+            $this->Flash->success('Contrato excluído com sucesso!');
         } else {
-            $this->Flash->error(__('The contratos peculio could not be deleted. Please, try again.'));
+            $this->Flash->error('Erro ao excluir o contrato.');
         }
 
         return $this->redirect(['action' => 'index']);
