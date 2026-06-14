@@ -31,7 +31,13 @@
         </tr>
         <tr>
             <th>Tipo de Evento</th>
-            <td><?= h($sinistro->tipo_evento) ?></td>
+            <td>
+        <?php
+        $eventos = [
+        'obito'                  => 'Óbito',
+        'invalidez'              => 'Invalidez',
+        'desligamento_voluntario' => 'Desligamento Voluntário',
+        ];echo $eventos[$sinistro->tipo_evento] ?? h($sinistro->tipo_evento);?> </td>
         </tr>
         <tr>
             <th>Data do Evento</th>

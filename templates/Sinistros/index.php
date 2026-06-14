@@ -5,61 +5,59 @@
  */
 ?>
 <div class="sinistros index content">
-    <?= $this->Html->link(__('New Sinistro'), ['action' => 'add'], ['class' => 'button float-right']) ?>
-    <h3><?= __('Sinistros') ?></h3>
-    <div class="table-responsive">
-        <table>
-            <thead>
-                <tr>
-                    <th><?= $this->Paginator->sort('id') ?></th>
-                    <th><?= $this->Paginator->sort('contrato_id') ?></th>
-                    <th><?= $this->Paginator->sort('tipo_evento') ?></th>
-                    <th><?= $this->Paginator->sort('data_evento') ?></th>
-                    <th><?= $this->Paginator->sort('data_abertura') ?></th>
-                    <th><?= $this->Paginator->sort('status') ?></th>
-                    <th><?= $this->Paginator->sort('valor_calculado') ?></th>
-                    <th><?= $this->Paginator->sort('created') ?></th>
-                    <th><?= $this->Paginator->sort('modified') ?></th>
-                    <th class="actions"><?= __('Actions') ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($sinistros as $sinistro): ?>
-                <tr>
-                    <td><?= $this->Number->format($sinistro->id) ?></td>
-                    <td><?= $this->Number->format($sinistro->contrato_id) ?></td>
-                    <td><?= h($sinistro->tipo_evento) ?></td>
-                    <td><?= h($sinistro->data_evento) ?></td>
-                    <td><?= h($sinistro->data_abertura) ?></td>
-                    <td><?= h($sinistro->status) ?></td>
-                    <td><?= $sinistro->valor_calculado === null ? '' : $this->Number->format($sinistro->valor_calculado) ?></td>
-                    <td><?= h($sinistro->created) ?></td>
-                    <td><?= h($sinistro->modified) ?></td>
-                    <td class="actions">
-                        <?= $this->Html->link(__('View'), ['action' => 'view', $sinistro->id]) ?>
-                        <?= $this->Html->link(__('Edit'), ['action' => 'edit', $sinistro->id]) ?>
-                        <?= $this->Form->postLink(
-                            __('Delete'),
-                            ['action' => 'delete', $sinistro->id],
-                            [
-                                'method' => 'delete',
-                                'confirm' => __('Are you sure you want to delete # {0}?', $sinistro->id),
-                            ]
-                        ) ?>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3>Sinistros</h3>
+        <?= $this->Html->link('Voltar ao Dashboard', ['controller' => 'Pages', 'action' => 'display', 'home']) ?>
     </div>
-    <div class="paginator">
-        <ul class="pagination">
-            <?= $this->Paginator->first('<< ' . __('first')) ?>
-            <?= $this->Paginator->prev('< ' . __('previous')) ?>
-            <?= $this->Paginator->numbers() ?>
-            <?= $this->Paginator->next(__('next') . ' >') ?>
-            <?= $this->Paginator->last(__('last') . ' >>') ?>
-        </ul>
-        <p><?= $this->Paginator->counter(__('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')) ?></p>
-    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Contrato</th>
+                <th>Tipo de Evento</th>
+                <th>Data do Evento</th>
+                <th>Data Abertura</th>
+                <th>Status</th>
+                <th>Valor Calculado</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($sinistros as $sinistro): ?>
+            <tr>
+                <td><?= $sinistro->id ?></td>
+                <td><?= h($sinistro->contratos_peculio->numero_contrato) ?></td>
+                <td>
+                    <?php
+                    $eventos = [
+                        'obito'                   => 'Óbito',
+                        'invalidez'               => 'Invalidez',
+                        'desligamento_voluntario'  => 'Desligamento Voluntário',
+                    ];
+                    echo $eventos[$sinistro->tipo_evento] ?? h($sinistro->tipo_evento);
+                    ?>
+                </td>
+                <td><?= $sinistro->data_evento->format('d/m/Y') ?></td>
+                <td><?= $sinistro->data_abertura->format('d/m/Y') ?></td>
+                <td>
+                    <?php
+                    $cores = [
+                        'aberto'     => 'background:#17a2b8; color:#fff; padding:3px 8px; border-radius:4px;',
+                        'em_analise' => 'background:#ffc107; color:#000; padding:3px 8px; border-radius:4px;',
+                        'aprovado'   => 'background:#28a745; color:#fff; padding:3px 8px; border-radius:4px;',
+                        'recusado'   => 'background:#dc3545; color:#fff; padding:3px 8px; border-radius:4px;',
+                        'pago'       => 'background:#6c757d; color:#fff; padding:3px 8px; border-radius:4px;',
+                    ];
+                    $estilo = $cores[$sinistro->status] ?? '';
+                    ?>
+                    <span style="<?= $estilo ?>"><?= h($sinistro->status) ?></span>
+                </td>
+                <td><strong>R$ <?= number_format((float)$sinistro->valor_calculado, 2, ',', '.') ?></strong></td>
+                <td>
+                    <?= $this->Html->link('Ver', ['action' => 'view', $sinistro->id]) ?>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 </div>
