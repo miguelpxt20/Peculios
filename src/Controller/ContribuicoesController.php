@@ -97,7 +97,8 @@ class ContribuicoesController extends AppController
             }
             $this->Flash->error('Erro ao atualizar a contribuição.');
         }
-        $this->set(compact('contribuicao'));
+       $this->set('contribuico', $contribuicao);
+       
     }
 
     public function delete($id = null)

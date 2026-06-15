@@ -3,98 +3,58 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-/**
- * PlanosPeculio Controller
- *
- * @property \App\Model\Table\PlanosPeculioTable $PlanosPeculio
- */
 class PlanosPeculioController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null|void Renders view
-     */
     public function index()
     {
         $query = $this->PlanosPeculio->find();
         $planosPeculio = $this->paginate($query);
-
         $this->set(compact('planosPeculio'));
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id Planos Peculio id.
-     * @return \Cake\Http\Response|null|void Renders view
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function view($id = null)
     {
-        $planosPeculioEntity = $this->PlanosPeculio->get($id, contain: []);
-        $this->set(compact('planosPeculioEntity'));
+        $planosPeculio = $this->PlanosPeculio->get($id);
+        $this->set(compact('planosPeculio'));
     }
 
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
-     */
     public function add()
     {
-        $planosPeculioEntity = $this->PlanosPeculio->newEmptyEntity();
+        $planosPeculio = $this->PlanosPeculio->newEmptyEntity();
         if ($this->request->is('post')) {
-            $planosPeculioEntity = $this->PlanosPeculio->patchEntity($planosPeculioEntity, $this->request->getData());
-            if ($this->PlanosPeculio->save($planosPeculioEntity)) {
-                $this->Flash->success(__('The planos peculio has been saved.'));
-
+            $planosPeculio = $this->PlanosPeculio->patchEntity($planosPeculio, $this->request->getData());
+            if ($this->PlanosPeculio->save($planosPeculio)) {
+                $this->Flash->success('Plano cadastrado com sucesso!');
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The planos peculio could not be saved. Please, try again.'));
+            $this->Flash->error('Erro ao cadastrar plano.');
         }
-        $this->set(compact('planosPeculioEntity'));
+        $this->set(compact('planosPeculio'));
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Planos Peculio id.
-     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function edit($id = null)
     {
-        $planosPeculioEntity = $this->PlanosPeculio->get($id, contain: []);
+        $planosPeculio = $this->PlanosPeculio->get($id);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $planosPeculioEntity = $this->PlanosPeculio->patchEntity($planosPeculioEntity, $this->request->getData());
-            if ($this->PlanosPeculio->save($planosPeculioEntity)) {
-                $this->Flash->success(__('The planos peculio has been saved.'));
-
+            $planosPeculio = $this->PlanosPeculio->patchEntity($planosPeculio, $this->request->getData());
+            if ($this->PlanosPeculio->save($planosPeculio)) {
+                $this->Flash->success('Plano atualizado com sucesso!');
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The planos peculio could not be saved. Please, try again.'));
+            $this->Flash->error('Erro ao atualizar plano.');
         }
-        $this->set(compact('planosPeculioEntity'));
+        $this->set(compact('planosPeculio'));
     }
 
-    /**
-     * Delete method
-     *
-     * @param string|null $id Planos Peculio id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $planosPeculioEntity = $this->PlanosPeculio->get($id);
-        if ($this->PlanosPeculio->delete($planosPeculioEntity)) {
-            $this->Flash->success(__('The planos peculio has been deleted.'));
+        $planosPeculio = $this->PlanosPeculio->get($id);
+        if ($this->PlanosPeculio->delete($planosPeculio)) {
+            $this->Flash->success('Plano excluído com sucesso!');
         } else {
-            $this->Flash->error(__('The planos peculio could not be deleted. Please, try again.'));
+            $this->Flash->error('Erro ao excluir plano.');
         }
-
         return $this->redirect(['action' => 'index']);
     }
 }

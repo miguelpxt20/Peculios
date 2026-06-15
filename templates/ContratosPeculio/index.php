@@ -43,10 +43,10 @@
                 <td><?= $contrato->data_fim ? $contrato->data_fim->format('d/m/Y') : '-' ?></td>
                 <td>
                     <?= $this->Html->link('Ver', ['action' => 'view', $contrato->id]) ?>
-                    <?php if ($contrato->status === 'vigente'): ?>
-                    <?= $this->Html->link('Abrir Sinistro', ['controller' => 'Sinistros', 'action' => 'abrir', $contrato->id], ['style' => 'color:red;']) ?>
-                    <?php endif; ?>
                     <?= $this->Html->link('Editar', ['action' => 'edit', $contrato->id]) ?>
+                    <?php if ($contrato->status === 'vigente'): ?>
+        |           <?= $this->Html->link('Abrir Sinistro', ['controller' => 'Sinistros', 'action' => 'abrir', $contrato->id], ['style' => 'color:#dc3545; font-weight:bold;']) ?>
+                    <?php endif; ?>
                     <?= $this->Form->postLink('Excluir', ['action' => 'delete', $contrato->id], ['confirm' => 'Tem certeza que deseja excluir este contrato?']) ?>
                 </td>
             </tr>

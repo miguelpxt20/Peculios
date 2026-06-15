@@ -3,98 +3,61 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-/**
- * Beneficiarios Controller
- *
- * @property \App\Model\Table\BeneficiariosTable $Beneficiarios
- */
 class BeneficiariosController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null|void Renders view
-     */
     public function index()
     {
-        $query = $this->Beneficiarios->find();
+        $query = $this->Beneficiarios->find()
+            ->contain(['ContratosPeculio']);
         $beneficiarios = $this->paginate($query);
-
         $this->set(compact('beneficiarios'));
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id Beneficiario id.
-     * @return \Cake\Http\Response|null|void Renders view
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function view($id = null)
     {
-        $beneficiario = $this->Beneficiarios->get($id, contain: []);
+        $beneficiario = $this->Beneficiarios->get($id, contain: ['ContratosPeculio']);
         $this->set(compact('beneficiario'));
     }
 
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
-     */
     public function add()
     {
         $beneficiario = $this->Beneficiarios->newEmptyEntity();
         if ($this->request->is('post')) {
             $beneficiario = $this->Beneficiarios->patchEntity($beneficiario, $this->request->getData());
             if ($this->Beneficiarios->save($beneficiario)) {
-                $this->Flash->success(__('The beneficiario has been saved.'));
-
+                $this->Flash->success('Beneficiário cadastrado com sucesso!');
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The beneficiario could not be saved. Please, try again.'));
+            $this->Flash->error('Erro ao cadastrar beneficiário. Verifique os campos.');
         }
-        $this->set(compact('beneficiario'));
+        $contratos = $this->Beneficiarios->ContratosPeculio->find('list', keyField: 'id', valueField: 'numero_contrato')->all();
+        $this->set(compact('beneficiario', 'contratos'));
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Beneficiario id.
-     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function edit($id = null)
     {
-        $beneficiario = $this->Beneficiarios->get($id, contain: []);
+        $beneficiario = $this->Beneficiarios->get($id);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $beneficiario = $this->Beneficiarios->patchEntity($beneficiario, $this->request->getData());
             if ($this->Beneficiarios->save($beneficiario)) {
-                $this->Flash->success(__('The beneficiario has been saved.'));
-
+                $this->Flash->success('Beneficiário atualizado com sucesso!');
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The beneficiario could not be saved. Please, try again.'));
+            $this->Flash->error('Erro ao atualizar beneficiário.');
         }
-        $this->set(compact('beneficiario'));
+        $contratos = $this->Beneficiarios->ContratosPeculio->find('list', keyField: 'id', valueField: 'numero_contrato')->all();
+        $this->set(compact('beneficiario', 'contratos'));
     }
 
-    /**
-     * Delete method
-     *
-     * @param string|null $id Beneficiario id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
         $beneficiario = $this->Beneficiarios->get($id);
         if ($this->Beneficiarios->delete($beneficiario)) {
-            $this->Flash->success(__('The beneficiario has been deleted.'));
+            $this->Flash->success('Beneficiário excluído com sucesso!');
         } else {
-            $this->Flash->error(__('The beneficiario could not be deleted. Please, try again.'));
+            $this->Flash->error('Erro ao excluir beneficiário.');
         }
-
         return $this->redirect(['action' => 'index']);
     }
 }

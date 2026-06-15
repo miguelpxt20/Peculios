@@ -4,33 +4,18 @@
  * @var \App\Model\Entity\Beneficiario $beneficiario
  */
 ?>
-<div class="row">
-    <aside class="column">
-        <div class="side-nav">
-            <h4 class="heading"><?= __('Actions') ?></h4>
-            <?= $this->Form->postLink(
-                __('Delete'),
-                ['action' => 'delete', $beneficiario->id],
-                ['confirm' => __('Are you sure you want to delete # {0}?', $beneficiario->id), 'class' => 'side-nav-item']
-            ) ?>
-            <?= $this->Html->link(__('List Beneficiarios'), ['action' => 'index'], ['class' => 'side-nav-item']) ?>
-        </div>
-    </aside>
-    <div class="column column-80">
-        <div class="beneficiarios form content">
-            <?= $this->Form->create($beneficiario) ?>
-            <fieldset>
-                <legend><?= __('Edit Beneficiario') ?></legend>
-                <?php
-                    echo $this->Form->control('contrato_id');
-                    echo $this->Form->control('nome');
-                    echo $this->Form->control('cpf');
-                    echo $this->Form->control('parentesco');
-                    echo $this->Form->control('percentual');
-                ?>
-            </fieldset>
-            <?= $this->Form->button(__('Submit')) ?>
-            <?= $this->Form->end() ?>
-        </div>
+<div class="beneficiarios form content">
+    <h3>Editar Beneficiário</h3>
+    <?= $this->Form->create($beneficiario) ?>
+    <fieldset>
+        <?= $this->Form->control('nome', ['label' => 'Nome Completo']) ?>
+        <?= $this->Form->control('cpf', ['label' => 'CPF (000.000.000-00)']) ?>
+        <?= $this->Form->control('parentesco', ['label' => 'Parentesco']) ?>
+        <?= $this->Form->control('percentual', ['label' => 'Percentual (%)']) ?>
+    </fieldset>
+    <div>
+        <?= $this->Form->button('Salvar', ['class' => 'button']) ?>
+        <?= $this->Html->link('Cancelar', ['action' => 'index']) ?>
     </div>
+    <?= $this->Form->end() ?>
 </div>

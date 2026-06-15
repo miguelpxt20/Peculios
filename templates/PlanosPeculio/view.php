@@ -1,70 +1,55 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\PlanosPeculio $planosPeculioEntity
+ * @var \App\Model\Entity\PlanosPeculio $planosPeculio
  */
 ?>
-<div class="row">
-    <aside class="column">
-        <div class="side-nav">
-            <h4 class="heading"><?= __('Actions') ?></h4>
-            <?= $this->Html->link(__('Edit Planos Peculio'), ['action' => 'edit', $planosPeculioEntity->id], ['class' => 'side-nav-item']) ?>
-            <?= $this->Form->postLink(__('Delete Planos Peculio'), ['action' => 'delete', $planosPeculioEntity->id], ['confirm' => __('Are you sure you want to delete # {0}?', $planosPeculioEntity->id), 'class' => 'side-nav-item']) ?>
-            <?= $this->Html->link(__('List Planos Peculio'), ['action' => 'index'], ['class' => 'side-nav-item']) ?>
-            <?= $this->Html->link(__('New Planos Peculio'), ['action' => 'add'], ['class' => 'side-nav-item']) ?>
-        </div>
-    </aside>
-    <div class="column column-80">
-        <div class="planosPeculio view content">
-            <h3><?= h($planosPeculioEntity->codigo) ?></h3>
-            <table>
-                <tr>
-                    <th><?= __('Codigo') ?></th>
-                    <td><?= h($planosPeculioEntity->codigo) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Nome') ?></th>
-                    <td><?= h($planosPeculioEntity->nome) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Tipo') ?></th>
-                    <td><?= h($planosPeculioEntity->tipo) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Id') ?></th>
-                    <td><?= $this->Number->format($planosPeculioEntity->id) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Valor Cobertura') ?></th>
-                    <td><?= $this->Number->format($planosPeculioEntity->valor_cobertura) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Percentual Contribuicao') ?></th>
-                    <td><?= $this->Number->format($planosPeculioEntity->percentual_contribuicao) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Carencia Meses') ?></th>
-                    <td><?= $this->Number->format($planosPeculioEntity->carencia_meses) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Created') ?></th>
-                    <td><?= h($planosPeculioEntity->created) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Modified') ?></th>
-                    <td><?= h($planosPeculioEntity->modified) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Ativo') ?></th>
-                    <td><?= $planosPeculioEntity->ativo ? __('Yes') : __('No'); ?></td>
-                </tr>
-            </table>
-            <div class="text">
-                <strong><?= __('Descricao') ?></strong>
-                <blockquote>
-                    <?= $this->Text->autoParagraph(h($planosPeculioEntity->descricao)); ?>
-                </blockquote>
-            </div>
+<div class="planos-peculio view content">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3>Detalhes do Plano</h3>
+        <div>
+            <?= $this->Html->link('Editar', ['action' => 'edit', $planosPeculio->id], ['class' => 'button']) ?>
+            <?= $this->Html->link('Voltar', ['action' => 'index']) ?>
         </div>
     </div>
+    <table>
+        <tr>
+            <th>Código</th>
+            <td><?= h($planosPeculio->codigo) ?></td>
+        </tr>
+        <tr>
+            <th>Nome</th>
+            <td><?= h($planosPeculio->nome) ?></td>
+        </tr>
+        <tr>
+            <th>Descrição</th>
+            <td><?= h($planosPeculio->descricao) ?></td>
+        </tr>
+        <tr>
+            <th>Tipo</th>
+            <td><?= $planosPeculio->tipo === 'individual' ? 'Individual' : 'Familiar' ?></td>
+        </tr>
+        <tr>
+            <th>Valor de Cobertura</th>
+            <td><strong>R$ <?= number_format((float)$planosPeculio->valor_cobertura, 2, ',', '.') ?></strong></td>
+        </tr>
+        <tr>
+            <th>% Contribuição</th>
+            <td><?= number_format((float)$planosPeculio->percentual_contribuicao * 100, 2, ',', '.') ?>%</td>
+        </tr>
+        <tr>
+            <th>Carência</th>
+            <td><?= $planosPeculio->carencia_meses ?> meses</td>
+        </tr>
+        <tr>
+            <th>Ativo</th>
+            <td>
+                <?php if ($planosPeculio->ativo): ?>
+                    <span style="background:#28a745; color:#fff; padding:3px 8px; border-radius:4px;">Sim</span>
+                <?php else: ?>
+                    <span style="background:#dc3545; color:#fff; padding:3px 8px; border-radius:4px;">Não</span>
+                <?php endif; ?>
+            </td>
+        </tr>
+    </table>
 </div>
