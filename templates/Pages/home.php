@@ -25,7 +25,7 @@
         </div>
         <div style="background:#ffc107; color:#000; padding:25px; border-radius:8px; text-align:center;">
             <div style="font-size:48px; font-weight:bold;"><?= $totalContribuicoesPendentes ?></div>
-            <div style="font-size:16px; margin-top:8px;">Contribuições Pendentes</div>
+            <div style="font-size:16px; margin-top:8px;">Contribuições Pendentes/atrasadas</div>
         </div>
     </div>
 

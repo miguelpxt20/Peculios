@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-use Migrations\BaseSeed;
+use Migrations\BaseMigration;
 
-class CreateContratosPeculio extends BaseSeed
+class CreateContratosPeculio extends BaseMigration
 {
     public function change(): void
     {

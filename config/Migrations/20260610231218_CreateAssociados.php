@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-use Migrations\BaseSeed;
+use Migrations\BaseMigration;
 
-class CreateAssociados extends BaseSeed
+class CreateAssociados extends BaseMigration
 {
     public function change(): void
     {

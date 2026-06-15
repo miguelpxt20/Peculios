@@ -51,7 +51,7 @@ class AssociadosController extends AppController
 
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The associado could not be saved. Please, try again.'));
+            $this->Flash->error('Erro ao salvar o associado. Verifique os campos e tente novamente.');
         }
         $this->set(compact('associado'));
     }
@@ -69,7 +69,7 @@ class AssociadosController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             $associado = $this->Associados->patchEntity($associado, $this->request->getData());
             if ($this->Associados->save($associado)) {
-                $this->Flash->success(__('The associado has been saved.'));
+                $this->Flash->success('Associado salvo com sucesso!');
 
                 return $this->redirect(['action' => 'index']);
             }

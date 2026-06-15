@@ -25,7 +25,7 @@
             <?php foreach ($contribuicoes as $contribuicao): ?>
             <tr>
                 <td><?= $contribuicao->id ?></td>
-                <td><?= $contribuicao->contrato_id ?></td>
+                <td><?= h($contribuicao->contratos_peculio->numero_contrato) ?></td>
                 <td><?= $contribuicao->competencia->format('m/Y') ?></td>
                 <td>R$ <?= number_format((float)$contribuicao->valor, 2, ',', '.') ?></td>
                 <td>

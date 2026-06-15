@@ -1,36 +1,33 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\Contribuico $contribuico
+ * @var \App\Model\Entity\Contribuico $contribuicao
  */
 ?>
-<div class="row">
-    <aside class="column">
-        <div class="side-nav">
-            <h4 class="heading"><?= __('Actions') ?></h4>
-            <?= $this->Form->postLink(
-                __('Delete'),
-                ['action' => 'delete', $contribuico->id],
-                ['confirm' => __('Are you sure you want to delete # {0}?', $contribuico->id), 'class' => 'side-nav-item']
-            ) ?>
-            <?= $this->Html->link(__('List Contribuicoes'), ['action' => 'index'], ['class' => 'side-nav-item']) ?>
-        </div>
-    </aside>
-    <div class="column column-80">
-        <div class="contribuicoes form content">
-            <?= $this->Form->create($contribuico) ?>
-            <fieldset>
-                <legend><?= __('Edit Contribuico') ?></legend>
-                <?php
-                    echo $this->Form->control('contrato_id');
-                    echo $this->Form->control('competencia');
-                    echo $this->Form->control('valor');
-                    echo $this->Form->control('status');
-                    echo $this->Form->control('data_pagamento', ['empty' => true]);
-                ?>
-            </fieldset>
-            <?= $this->Form->button(__('Submit')) ?>
-            <?= $this->Form->end() ?>
-        </div>
+<div class="contribuicoes form content">
+    <h3>Editar Contribuição</h3>
+    <?= $this->Form->create($contribuicao) ?>
+    <fieldset>
+        <?= $this->Form->control('status', [
+            'label' => 'Status',
+            'type' => 'select',
+            'options' => [
+                'pendente'  => 'Pendente',
+                'paga'      => 'Paga',
+                'atrasada'  => 'Atrasada',
+                'cancelada' => 'Cancelada',
+            ]
+        ]) ?>
+        <?= $this->Form->control('data_pagamento', [
+            'label' => 'Data de Pagamento (opcional)',
+            'type' => 'date',
+            'required' => false,
+        ]) ?>
+        <?= $this->Form->control('valor', ['label' => 'Valor']) ?>
+    </fieldset>
+    <div>
+        <?= $this->Form->button('Salvar', ['class' => 'button']) ?>
+        <?= $this->Html->link('Cancelar', ['action' => 'index']) ?>
     </div>
+    <?= $this->Form->end() ?>
 </div>

@@ -97,7 +97,7 @@ class ContribuicoesController extends AppController
             }
             $this->Flash->error('Erro ao atualizar a contribuição.');
         }
-       $this->set('contribuico', $contribuicao);
+       $this->set('contribuicao', $contribuicao);
        
     }
 

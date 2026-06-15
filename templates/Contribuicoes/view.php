@@ -1,56 +1,52 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\Contribuico $contribuico
+ * @var \App\Model\Entity\Contribuico $contribuicao
  */
 ?>
-<div class="row">
-    <aside class="column">
-        <div class="side-nav">
-            <h4 class="heading"><?= __('Actions') ?></h4>
-            <?= $this->Html->link(__('Edit Contribuico'), ['action' => 'edit', $contribuico->id], ['class' => 'side-nav-item']) ?>
-            <?= $this->Form->postLink(__('Delete Contribuico'), ['action' => 'delete', $contribuico->id], ['confirm' => __('Are you sure you want to delete # {0}?', $contribuico->id), 'class' => 'side-nav-item']) ?>
-            <?= $this->Html->link(__('List Contribuicoes'), ['action' => 'index'], ['class' => 'side-nav-item']) ?>
-            <?= $this->Html->link(__('New Contribuico'), ['action' => 'add'], ['class' => 'side-nav-item']) ?>
-        </div>
-    </aside>
-    <div class="column column-80">
-        <div class="contribuicoes view content">
-            <h3><?= h($contribuico->status) ?></h3>
-            <table>
-                <tr>
-                    <th><?= __('Status') ?></th>
-                    <td><?= h($contribuico->status) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Id') ?></th>
-                    <td><?= $this->Number->format($contribuico->id) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Contrato Id') ?></th>
-                    <td><?= $this->Number->format($contribuico->contrato_id) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Valor') ?></th>
-                    <td><?= $this->Number->format($contribuico->valor) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Competencia') ?></th>
-                    <td><?= h($contribuico->competencia) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Data Pagamento') ?></th>
-                    <td><?= h($contribuico->data_pagamento) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Created') ?></th>
-                    <td><?= h($contribuico->created) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Modified') ?></th>
-                    <td><?= h($contribuico->modified) ?></td>
-                </tr>
-            </table>
+<div class="contribuicoes view content">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3>Detalhes da Contribuição</h3>
+        <div>
+            <?= $this->Html->link('Editar', ['action' => 'edit', $contribuicao->id], ['class' => 'button']) ?>
+            <?= $this->Html->link('Voltar', ['action' => 'index']) ?>
         </div>
     </div>
+    <table>
+        <tr>
+            <th>Contrato</th>
+            <td><?= $contribuicao->contrato_id ?></td>
+        </tr>
+        <tr>
+            <th>Competência</th>
+            <td><?= $contribuicao->competencia->format('m/Y') ?></td>
+        </tr>
+        <tr>
+            <th>Valor</th>
+            <td><strong>R$ <?= number_format((float)$contribuicao->valor, 2, ',', '.') ?></strong></td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <td>
+                <?php
+                $cores = [
+                    'pendente'  => 'background:#ffc107; color:#000; padding:3px 8px; border-radius:4px;',
+                    'paga'      => 'background:#28a745; color:#fff; padding:3px 8px; border-radius:4px;',
+                    'atrasada'  => 'background:#dc3545; color:#fff; padding:3px 8px; border-radius:4px;',
+                    'cancelada' => 'background:#6c757d; color:#fff; padding:3px 8px; border-radius:4px;',
+                ];
+                $estilo = $cores[$contribuicao->status] ?? '';
+                ?>
+                <span style="<?= $estilo ?>"><?= h($contribuicao->status) ?></span>
+            </td>
+        </tr>
+        <tr>
+            <th>Data de Pagamento</th>
+            <td><?= $contribuicao->data_pagamento ? $contribuicao->data_pagamento->format('d/m/Y') : '-' ?></td>
+        </tr>
+        <tr>
+            <th>Cadastrado em</th>
+            <td><?= $contribuicao->created->format('d/m/Y H:i') ?></td>
+        </tr>
+    </table>
 </div>

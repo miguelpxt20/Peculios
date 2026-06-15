@@ -64,12 +64,11 @@ class PagesController extends AppController
             ->count();
 
         $totalContribuicoesPendentes = $contribuicoesTable->find()
-            ->where([
-                'status' => 'pendente',
-                'competencia' => date('Y-m-01'),
-            ])
+            ->where(['status IN' => ['pendente', 'atrasada']])
             ->count();
-
+            
+                
+        
         $this->set(compact(
             'totalAssociadosAtivos',
             'totalContratosVigentes',
