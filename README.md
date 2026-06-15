@@ -21,7 +21,10 @@ composer install
 
 # 3. Configure o banco de dados
 cp config/app_local.example.php config/app_local.php
-# Edite config/app_local.php com suas credenciais
+# Edite config/app_local.php com suas credenciais:
+# - database: peculios_db
+# - username: root (padrão XAMPP)
+# - password: (vazio no XAMPP)
 
 # 4. Crie o banco de dados
 # Acesse o MySQL e crie o banco: peculios_db
